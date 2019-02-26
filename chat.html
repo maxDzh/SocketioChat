@@ -1,0 +1,84 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Test of SocketIO</title>
+    <script type="text/javascript" src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.slim.js"></script>
+    <script type="text/javascript" charset="utf-8">
+        $(document).ready(function(){
+            var username = ''
+            var socket = ''
+
+            $('form#connect').submit(function(event) {
+                namespace = '/test';
+                socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
+
+                socket.emit('show username', {data: $('#user_name').val()});
+                username = $('#user_name').val()
+
+
+                socket.on('disconnect', function() {
+                    $('#log').append('<br>Disconnected');
+                });
+
+                return false;
+            });
+
+
+
+            $('form#join').submit(function(event) {
+                socket.emit('join room', {room: $('#join_room').val(), username: username});
+                return false;
+            });
+
+            $('form#leave').submit(function(event) {
+                socket.emit('leave room', {room: $('#join_room').val()});
+                return false;
+            });
+            $('form#send_room').submit(function(event) {
+                socket.emit('my room event', {room: $('#join_room').val(), data: $('#room_data').val()});
+                return false;
+            });
+            $('form#close').submit(function(event) {
+                socket.emit('close room', {room: $('#join_room').val()});
+                return false;
+            });
+            $('form#disconnect').submit(function(event) {
+                socket.emit('disconnect request');
+                return false;
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>Test</h1>
+    <h2>Chat options</h2>
+    <form id="connect" method="POST" action='#'>
+        <input type="text" name="user_data" id="user_name" placeholder="username">
+        <input type="submit" value="Connect">
+    </form>
+
+
+    <form id="join" method="POST" action='#'>
+        <input type="text" name="join_room" id="join_room" placeholder="Room Name">
+        <input type="submit" value="Join Room">
+    </form>
+
+    <form id="send_room" method="POST" action='#'>
+        <input type="text" name="room_data" id="room_data" placeholder="Message">
+        <input type="submit" value="Send to Room">
+    </form>
+
+    <form id="leave" method="POST" action='#'>
+        <input type="submit" value="Leave Room">
+    </form>
+    <form id="close" method="POST" action="#">
+        <input type="submit" value="Close Room">
+    </form>
+    <form id="disconnect" method="POST" action="#">
+        <input type="submit" value="Disconnect">
+    </form>
+    <h2>Receive:</h2>
+    <div><p id="log"></p></div>
+</body>
+</html>
