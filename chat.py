@@ -1,6 +1,7 @@
 from sanic import Sanic
 from sanic.response import html
 import socketio
+import re
 
 
 sio = socketio.AsyncServer(async_mode='sanic')
@@ -30,6 +31,18 @@ async def join(sid, message):
 async def leave(sid, message):
     sio.leave_room(sid, message['room'], namespace='/test')
     await sio.emit('my response', {'data': 'Left room: ' + message['room']},
+                   room=sid, namespace='/test')
+
+
+@sio.on('list rooms', namespace='/test')
+async def roomlist(sid):
+    rooms = sio.manager.rooms['/test']
+    room_str = ''
+    for r in rooms:
+        # exclude personal rooms
+        if r is not None and not re.findall('[a-z0-9]{32}', r):
+            room_str += r + ","
+    await sio.emit('my response', {'data': 'Rooms list: ' + room_str[0:len(room_str)-1]},
                    room=sid, namespace='/test')
 
 

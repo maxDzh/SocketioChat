@@ -17,6 +17,10 @@
                 username = $('#user_name').val()
 
 
+                socket.on('my response', function(msg) {
+                    $('#log').append('<br>'+ msg.data);
+                });
+
                 socket.on('disconnect', function() {
                     $('#log').append('<br>Disconnected');
                 });
@@ -45,6 +49,10 @@
             });
             $('form#disconnect').submit(function(event) {
                 socket.emit('disconnect request');
+                return false;
+            });
+            $('form#listRooms').submit(function(event) {
+                socket.emit('list rooms');
                 return false;
             });
         });
@@ -77,6 +85,9 @@
     </form>
     <form id="disconnect" method="POST" action="#">
         <input type="submit" value="Disconnect">
+    </form>
+    <form id="listRooms" method="POST" action="#">
+        <input type="submit" value="Get rooms list">
     </form>
     <h2>Receive:</h2>
     <div><p id="log"></p></div>
